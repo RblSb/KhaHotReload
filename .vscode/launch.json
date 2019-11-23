@@ -1,0 +1,28 @@
+{
+  "configurations": [
+    {
+      "type": "electron",
+      "request": "launch",
+      "name": "HTML5-watch",
+      "appDir": "${workspaceFolder}/build/debug-html5",
+      "sourceMaps": true,
+      "preLaunchTask": "Build Electron-watch",
+      "postDebugTask": "postDebugKill"
+    },
+    {
+      "type": "electron",
+      "request": "launch",
+      "name": "Kha: HTML5",
+      "appDir": "${workspaceFolder}/build/debug-html5",
+      "sourceMaps": true,
+      "preLaunchTask": "Kha: Build for Debug HTML5"
+    },
+    {
+      "type": "krom",
+      "request": "launch",
+      "name": "Kha: Krom",
+      "preLaunchTask": "Kha: Build for Krom"
+    }
+  ],
+  "compounds": []
+}

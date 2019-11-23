@@ -1,0 +1,8 @@
+-lib hxnodejs
+-lib hxnodejs-ws
+-cp src
+# -main Main
+Main
+-D analyzer-optimize
+--dce full
+--js bin/server.js
