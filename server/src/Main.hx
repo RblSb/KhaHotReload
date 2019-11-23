@@ -1,10 +1,7 @@
 package;
 
-import haxe.Constraints.Function;
 import haxe.Json;
-import js.node.Url;
 import js.node.Fs;
-import js.Node.__dirname;
 import js.Node.process;
 import js.npm.ws.Server as WSServer;
 import js.npm.ws.WebSocket;

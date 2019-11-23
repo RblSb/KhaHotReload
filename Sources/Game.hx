@@ -1,10 +1,7 @@
 package;
 
-using kha.graphics2.GraphicsExtension;
-import kha.math.FastMatrix3;
 import kha.Canvas;
 import kha.System;
-import kha.Assets;
 import khm.Screen;
 import khm.Screen.Pointer;
 
@@ -14,13 +11,13 @@ class Game extends Screen {
 
 	public function init() {}
 
-	override function onUpdate(): Void {
+	override function onUpdate():Void {
 		for (r in rects) r.update();
 		for (r in rects2) r.update();
 	}
 
-	override function onRender(framebuffer: Canvas): Void {
-		final g = framebuffer.g2;
+	override function onRender(canvas:Canvas):Void {
+		final g = canvas.g2;
 		g.begin(true, 0xff505050);
 		for (r in rects) {
 			g.color = r.color;

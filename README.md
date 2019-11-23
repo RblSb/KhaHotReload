@@ -1,5 +1,7 @@
 ## KhaHotReload
 
+![gif demo](https://i.imgur.com/dlB0x9Q.gif)
+
 Code pathing without project rebuilding. Supported targets:
 - html5
 - debug-html5 (Electron)
