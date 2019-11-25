@@ -1,7 +1,7 @@
 {
-  "name": "khot",
+  "name": "hotml",
   "version": "1.0.0",
-  "description": "html5 hot-reload for Kha",
+  "description": "html5 hot-reload for Kha/Haxe",
   "main": "bin/server.js",
   "repository": {
     "type": "git",

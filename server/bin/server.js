@@ -75,14 +75,14 @@ Main.__name__ = true;
 Main.prototype = {
 	onConnect: function(ws) {
 		var _gthis = this;
-		console.log("src/Main.hx:42:","Client connected");
+		console.log("src/Main.hx:40:","Client connected");
 		this.clients.push(ws);
 		var tmp = JSON.stringify({ type : "connect", id : 0, clients : [], diff : ""});
 		ws.send(tmp,null);
 		ws.on("message",function(data) {
 		});
 		ws.on("close",function(err) {
-			console.log("src/Main.hx:57:","Client disconnected");
+			console.log("src/Main.hx:55:","Client disconnected");
 			HxOverrides.remove(_gthis.clients,ws);
 		});
 	}
@@ -95,14 +95,14 @@ Main.prototype = {
 		var data = js_node_Fs.readFileSync("" + this.buildDir + "/" + this.scriptName,{ encoding : "utf8"});
 		if(this.file == null) {
 			this.file = new Parser(data);
-			console.log("src/Main.hx:76:","" + this.buildDir + "/" + this.scriptName + " cached");
-			console.log("src/Main.hx:77:","Js type: " + this.file.getJsType());
+			console.log("src/Main.hx:74:","" + this.buildDir + "/" + this.scriptName + " cached");
+			console.log("src/Main.hx:75:","Js type: " + this.file.getJsType());
 			return;
 		}
 		var newFile = new Parser(data);
 		var arr = this.file.makeDiffTo(newFile);
 		if(Main.logResult) {
-			console.log("src/Main.hx:82:",arr);
+			console.log("src/Main.hx:80:",arr);
 		}
 		this.broadcast(arr);
 		this.file = newFile;
@@ -231,8 +231,9 @@ Parser.prototype = {
 			if(StringTools.startsWith(value,"function")) {
 				throw new js__$Boot_HaxeError("TODO one-line function");
 			}
+			var s = "" + className + "." + field + " = " + this.minString(value);
 			if(Parser.logTypes) {
-				console.log("src/Parser.hx:119:","" + className + "." + field + " = " + this.minString(value));
+				console.log("src/Parser.hx:119:",s);
 			}
 			var _this2 = this.classes;
 			var _this3 = (__map_reserved[className] != null ? _this2.getReserved(className) : _this2.h[className]).staticVars;
@@ -267,15 +268,17 @@ Parser.prototype = {
 			if(className2 == "window") {
 				return;
 			}
+			var s1 = "" + className2 + "." + name2 + "(" + args + ") {" + body.split("\n").length + "}";
 			if(Parser.logTypes) {
-				console.log("src/Parser.hx:119:","" + className2 + "." + name2 + "(" + args + ") {" + body.split("\n").length + "}");
+				console.log("src/Parser.hx:119:",s1);
 			}
 			if(Parser.logBodies) {
 				console.log("src/Parser.hx:123:",body);
 			}
 			var _this6 = this.classes;
+			var this1 = (__map_reserved[className2] != null ? _this6.getReserved(className2) : _this6.h[className2]).methods;
 			var v = { name : name2, args : args.split(","), body : body, isStatic : true};
-			var _this7 = (__map_reserved[className2] != null ? _this6.getReserved(className2) : _this6.h[className2]).methods;
+			var _this7 = this1;
 			if(__map_reserved[name2] != null) {
 				_this7.setReserved(name2,v);
 			} else {
@@ -304,8 +307,9 @@ Parser.prototype = {
 			_g.h["new"] = constructor;
 		}
 		var klass = { name : name, methods : _g, staticVars : new haxe_ds_StringMap()};
+		var s = "" + name + "(" + Std.string(args) + ").new {" + constructor.body.split("\n").length + "}";
 		if(Parser.logTypes) {
-			console.log("src/Parser.hx:119:","" + name + "(" + Std.string(args) + ").new {" + constructor.body.split("\n").length + "}");
+			console.log("src/Parser.hx:119:",s);
 		}
 		if(Parser.logBodies) {
 			console.log("src/Parser.hx:123:",constructor.body);
@@ -387,14 +391,16 @@ Parser.prototype = {
 			var name = this.matchFunc.matched(1);
 			var args = this.matchFunc.matched(2);
 			var body = this.readFunctionBody("\t}");
+			var s = "function " + name + "(" + args + ") {" + body.split("\n").length + "}";
 			if(Parser.logTypes) {
-				console.log("src/Parser.hx:119:","function " + name + "(" + args + ") {" + body.split("\n").length + "}");
+				console.log("src/Parser.hx:119:",s);
 			}
 			if(Parser.logBodies) {
 				console.log("src/Parser.hx:123:",body);
 			}
+			var this1 = this.currentClass.methods;
 			var v = { name : name, args : args.split(","), body : body};
-			var _this = this.currentClass.methods;
+			var _this = this1;
 			if(__map_reserved[name] != null) {
 				_this.setReserved(name,v);
 			} else {

@@ -7,7 +7,7 @@ project.addParameter('-dce full');
 project.targetOptions.html5.disableContextMenu = true;
 
 if (process.argv.includes("--watch")) {
-	project.addLibrary('khot');
+	project.addLibrary('hotml');
 	project.addDefine('js_classic');
 	const path = require('path');
 	const Server = new require(path.resolve('./server/bin/server.js')).Main;

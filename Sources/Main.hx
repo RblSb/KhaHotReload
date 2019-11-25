@@ -13,7 +13,7 @@ import js.Browser.window;
 class Main {
 
 	public static function main() {
-		#if khot new khot.Client(); #end
+		#if hotml new hotml.Client(); #end
 		setFullWindowCanvas();
 		System.start({title: "Kha", width: 800, height: 600}, (_) -> {
 			 //Just loading everything is ok for small projects

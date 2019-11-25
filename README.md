@@ -2,7 +2,7 @@
 
 ![gif demo](https://i.imgur.com/dlB0x9Q.gif)
 
-Code pathing without project rebuilding. Supported targets:
+Code patching without project rebuilding. Supported targets:
 - html5
 - debug-html5 (Electron)
 - krom? (not tested)
@@ -14,13 +14,13 @@ node Kha/make html5 --watch
 ```
 
 ### Setup for personal project
-- Copy `server` and `Libraries/khot` folders to your project folder.
-- Add `#if khot new khot.Client(); #end` at start of `Main.main()`.
+- Copy `server` and `Libraries/hotml` folders to your project folder.
+- Add `#if hotml new hotml.Client(); #end` at start of `Main.main()`.
 - Add this block to `khafile.js` (before `resolve(project);`):
 ```js
 if (process.argv.includes("--watch")) { // run only in watch mode
-	project.addLibrary('khot'); // client code for code-patching
-	project.addDefine('js_classic'); // to support constructors pathing, optional
+	project.addLibrary('hotml'); // client code for code-patching
+	project.addDefine('js_classic'); // to support constructors patching, optional
 	// start websocket server that will send type diffs to client
 	const path = require('path');
 	const Server = new require(path.resolve('./server/bin/server.js')).Main;

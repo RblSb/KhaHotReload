@@ -30,7 +30,7 @@ class Game extends Screen {
 		g.end();
 	}
 
-	override function onMouseDown(p:Pointer): Void {
+	override function onMouseDown(p:Pointer):Void {
 		if (p.type == 1) {
 			rects.resize(0);
 			rects2.resize(0);

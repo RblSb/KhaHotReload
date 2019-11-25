@@ -1,4 +1,4 @@
-package khot;
+package hotml;
 
 import js.html.WebSocket;
 import js.Browser;
@@ -72,7 +72,7 @@ class Client {
 	function onMessage(e) {
 		var arr:Array<Patch> = Json.parse(e.data);
 		for (obj in arr) {
-			trace(obj);
+			trace('Event: ${obj.type}');
 			switch (obj.type) {
 				case "addClass":
 					addClass(obj.klass);
