@@ -39,7 +39,10 @@ typedef Patch = {
 	// constructor
 	?classId:String,
 	// functions
-	?func:Func
+	?func:Func,
+	// assets
+	?path:String,
+	?data:String
 }
 
 class Client {
@@ -84,6 +87,12 @@ class Client {
 					setFunction(obj.className, obj.func);
 				case "addEnum":
 					setEnum(obj.enumeration);
+				case "reloadAsset":
+					#if kha
+					Kha.reloadAsset(obj.path, obj.data);
+					#else
+					trace("Asset reloader not found");
+					#end
 			}
 		}
 	}

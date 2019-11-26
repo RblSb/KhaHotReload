@@ -44,10 +44,13 @@ typedef Patch = {
 	?className:String,
 	?name:String,
 	?value:String,
-	// for constructor
+	// constructor
 	?classId:String,
 	// functions
-	?func:Func
+	?func:Func,
+	// assets
+	?path:String,
+	?data:String
 }
 
 

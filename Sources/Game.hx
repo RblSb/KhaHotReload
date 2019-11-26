@@ -2,14 +2,22 @@ package;
 
 import kha.Canvas;
 import kha.System;
+import kha.Assets;
 import khm.Screen;
 import khm.Screen.Pointer;
 
 class Game extends Screen {
+
+	final imgLink = Assets.images.img;
+	final blobLink = Assets.blobs.blob_txt;
 	final rects:Array<Rect> = [];
 	final rects2:Array<Rect2> = [];
 
-	public function init() {}
+	public function init() {
+		// Assets.loadBlob("blob_txt", (blob) -> {
+		// 	trace(blob);
+		// });
+	}
 
 	override function onUpdate():Void {
 		for (r in rects) r.update();
@@ -27,6 +35,8 @@ class Game extends Screen {
 			g.color = Rect2.color;
 			g.drawRect(r.x, r.y, r.size, r.size);
 		}
+		g.color = 0xFFFFFFFF;
+		g.drawImage(imgLink, 0, 0);
 		g.end();
 	}
 
@@ -34,6 +44,7 @@ class Game extends Screen {
 		if (p.type == 1) {
 			rects.resize(0);
 			rects2.resize(0);
+			trace(blobLink.bytes);
 			return;
 		}
 		switch (Std.random(2)) {

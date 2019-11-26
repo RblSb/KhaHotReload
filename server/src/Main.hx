@@ -1,7 +1,8 @@
 package;
 
+import sys.io.File;
+import haxe.crypto.Base64;
 import haxe.Json;
-import js.node.Fs;
 import js.Node.process;
 import js.npm.ws.Server as WSServer;
 import js.npm.ws.WebSocket;
@@ -67,7 +68,7 @@ class Main {
 		// Parser.logTypes = true;
 		// Parser.logBodies = true;
 		// Parser.logSkips = true;
-		final data = Fs.readFileSync('$buildDir/$scriptName', {encoding: "utf8"});
+		final data = File.getContent('$buildDir/$scriptName');
 		if (file == null) {
 			file = new Parser(data);
 			trace('$buildDir/$scriptName cached');
@@ -79,6 +80,12 @@ class Main {
 		if (logResult) trace(arr);
 		broadcast(arr);
 		file = newFile;
+	}
+
+	public function reloadAsset(path:String):Void {
+		final bytes = File.getBytes('$buildDir/$path');
+		final data = Base64.encode(bytes);
+		broadcast([{type:"reloadAsset", path: path, data: data}]);
 	}
 
 }

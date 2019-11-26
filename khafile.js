@@ -1,6 +1,11 @@
 let project = new Project('first_hx_game');
 
 project.addSources('Sources');
+project.addAssets('res/**/!(*.mp3)', {
+	nameBaseDir: 'res',
+	destination: '{dir}/{name}',
+	name: '{dir}/{name}'
+});
 project.addDefine('kha_no_ogg');
 project.addDefine('analyzer-optimize');
 project.addParameter('-dce full');
@@ -14,7 +19,10 @@ if (process.argv.includes("--watch")) {
 	const server = new Server(`${path.resolve('.')}/build/${platform}`, 'kha.js');
 	callbacks.postHaxeRecompilation = () => {
 		server.reload();
-	};
+	}
+	// callbacks.postAssetReexporting = (path) => {
+	// 	server.reloadAsset(path);
+	// }
 }
 
 resolve(project);
