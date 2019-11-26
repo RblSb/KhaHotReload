@@ -72,9 +72,10 @@ class Parser {
 	// matches: var foo_bar = $hxClasses["foo.Bar"] = function() {
 	final matchClassicConstructor = ~/^var ([^ ]+) = \$hxClasses\["([^ ]+)"\] =.* function\((.*)\) {( };)?$/;
 	// empty class without constructor
-	final matchObj = ~/var ([^ ]+) = { ?}/;
+	// (hx_exports block optional on both obj types)
+	final matchObj = ~/var ([^ ]+) =.*{ ?}/;
 	// matches: var foo_bar = $hxClasses["foo.Bar"] = {};
-	final matchClassicObj = ~/^var ([^ ]+) = \$hxClasses\["([^ ]+)"\] = { ?};$/;
+	final matchClassicObj = ~/^var ([^ ]+) = \$hxClasses\["([^ ]+)"\] =.*{ ?};$/;
 	// internal name for client array access
 	final matchClassNameId = ~/\$hxClasses\["(.+)"] = (.+);/;
 	final matchParent = ~/__super__ = (.+);/;
