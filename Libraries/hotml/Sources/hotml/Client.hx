@@ -174,12 +174,14 @@ class Client {
 	}
 
 	function makeFunc(func:Func):js.lib.Function {
+		#if js_classic
+		return untyped __js__("new Function(...{0}, {1})", func.args, func.body);
+		#end
 		var args = "";
 		if (func.args.length > 0) args += func.args[0];
 		for (i in 1...func.args.length) args += "," + func.args[i];
 		final code = '(function ($args) {${func.body}})';
 		return untyped __js__("eval({0})", code);
-		// return untyped __js__("new Function(...{0}, {1})", func.args, func.body);
 	}
 
 	function makeObj(code:String):js.lib.Object {
