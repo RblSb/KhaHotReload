@@ -1,7 +1,7 @@
 let project = new Project('first_hx_game');
 
 project.addSources('Sources');
-project.addAssets('res/**/!(*.mp3)', {
+project.addAssets('res/**', {
 	nameBaseDir: 'res',
 	destination: '{dir}/{name}',
 	name: '{dir}/{name}'

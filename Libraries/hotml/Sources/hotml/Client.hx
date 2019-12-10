@@ -190,7 +190,8 @@ class Client {
 	}
 
 	function setEnum(en:Enumeration):Void {
-		untyped $hxEnums[en.nameId] = makeObj(en.body);
+		// TODO patch fields if enum exist
+		untyped window[en.nameId] = $hxEnums[en.nameId] = makeObj(en.body);
 	}
 
 }

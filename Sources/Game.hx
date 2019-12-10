@@ -5,6 +5,12 @@ import kha.System;
 import kha.Assets;
 import khm.Screen;
 import khm.Screen.Pointer;
+import kha.input.KeyCode;
+
+enum TestEnum {
+	Foo;
+	Bar(num:Int);
+}
 
 class Game extends Screen {
 
@@ -50,6 +56,19 @@ class Game extends Screen {
 		switch (Std.random(2)) {
 			case 0: rects.push(new Rect());
 			case 1: rects2.push(new Rect2());
+		}
+	}
+
+	override function onKeyDown(key:KeyCode) {
+		if (key == E) {
+			trace(TestEnum.getConstructors());
+		}
+		// if new object var or function added
+		// game instance should be recreated
+		if (key == R) {
+			final game = new Game();
+			game.show();
+			game.init();
 		}
 	}
 
