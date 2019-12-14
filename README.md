@@ -29,6 +29,10 @@ if (process.argv.includes("--watch")) { // run only in watch mode
 	callbacks.postHaxeRecompilation = () => {
 		server.reload(); // parse js file every compilation
 	};
+	// for assets reloading
+	callbacks.postAssetReexporting = (path) => {
+		server.reloadAsset(path);
+	}
 }
 ```
 

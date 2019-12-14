@@ -20,9 +20,9 @@ if (process.argv.includes("--watch")) {
 	callbacks.postHaxeRecompilation = () => {
 		server.reload();
 	}
-	// callbacks.postAssetReexporting = (path) => {
-	// 	server.reloadAsset(path);
-	// }
+	callbacks.postAssetReexporting = (path) => {
+		server.reloadAsset(path);
+	}
 }
 
 resolve(project);
