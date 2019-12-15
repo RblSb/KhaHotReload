@@ -2,7 +2,6 @@ package;
 
 import kha.System;
 import kha.Assets;
-import khm.Screen;
 #if kha_html5
 import kha.Macros;
 import js.html.CanvasElement;
@@ -13,7 +12,7 @@ import js.Browser.window;
 class Main {
 
 	public static function main() {
-		#if hotml new hotml.Client(); #end
+		#if hotml new hotml.client.Client(); #end
 		setFullWindowCanvas();
 		System.start({title: "Kha", width: 800, height: 600}, (_) -> {
 			 //Just loading everything is ok for small projects

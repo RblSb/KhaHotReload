@@ -1,4 +1,4 @@
-package;
+package hotml.server;
 
 import sys.io.File;
 import haxe.crypto.Base64;
@@ -11,7 +11,6 @@ import js.npm.ws.WebSocket;
 @:expose
 class Main {
 
-	// static function main() new Main();
 	public static var logResult = false;
 	final buildDir:String;
 	final scriptName:String;

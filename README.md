@@ -14,21 +14,22 @@ node Kha/make html5 --watch
 ```
 
 ### Setup for personal project
-- Copy `server` and `Libraries/hotml` folders to your project folder.
-- Add `#if hotml new hotml.Client(); #end` at start of `Main.main()`.
+- Copy `Libraries/hotml` folder to your project folder.
+- Add `#if hotml new hotml.client.Client(); #end` at start of `Main.main()`.
 - Add this block to `khafile.js` (before `resolve(project);`):
 ```js
 if (process.argv.includes("--watch")) { // run only in watch mode
-	project.addLibrary('hotml'); // client code for code-patching
+	let libPath = project.addLibrary('hotml'); // client code for code-patching
+	if (!libPath) libPath = path.resolve('./Libraries/hotml');
 	project.addDefine('js_classic'); // to support constructors patching, optional
 	// start websocket server that will send type diffs to client
 	const path = require('path');
-	const Server = new require(path.resolve('./server/bin/server.js')).Main;
+	const Server = require(path.resolve('./server/bin/server.js')).Main;
 	// path to target build folder and main js file.
 	const server = new Server(`${path.resolve('.')}/build/${platform}`, 'kha.js');
 	callbacks.postHaxeRecompilation = () => {
 		server.reload(); // parse js file every compilation
-	};
+	}
 	// for assets reloading
 	callbacks.postAssetReexporting = (path) => {
 		server.reloadAsset(path);
@@ -39,7 +40,7 @@ if (process.argv.includes("--watch")) { // run only in watch mode
 Done. For VSCode you also need to copy `.vscode/` launch option and tasks.
 
 ### Debug hot-reload server
-`server/` is separated VSCode project with personal build task.
+`Libraries/hotml` is separated VSCode project with personal build task for server side.
 `Parser.hx` has some static vars for detected types tracing.
 
 ### Usage for other frameworks / pure Haxe projects

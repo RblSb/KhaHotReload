@@ -1,8 +1,8 @@
 -lib hxnodejs
 -lib hxnodejs-ws
--cp src
+-cp Sources
 # -main Main
-Main
+hotml.server.Main
 -D analyzer-optimize
 --dce full
 --js bin/server.js

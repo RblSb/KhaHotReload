@@ -1,5 +1,9 @@
-package;
+package hotml.server;
 
+import hotml.Types.Enumeration;
+import hotml.Types.Func;
+import hotml.Types.Klass;
+import hotml.Types.Patch;
 using StringTools;
 
 enum abstract JsType(Int) {
@@ -7,52 +11,10 @@ enum abstract JsType(Int) {
 	var Es5;
 }
 
-typedef Func = {
-	name:String,
-	args:Array<String>,
-	body:String,
-	?isStatic:Bool
-}
-
-typedef Klass = {
-	name:String,
-	?nameId:String,
-	?parent:String,
-	?interfaces:String,
-	methods:Map<String, Func>,
-	staticVars:Map<String, String>
-}
-
-typedef Enumeration = {
-	name:String,
-	nameId:String,
-	body:String
-}
-
 enum abstract ParseMode(Int) {
 	var ParseRegular;
 	var ParseMethods;
 }
-
-typedef Patch = {
-	type:String,
-	// classes
-	?klass:Klass,
-	// enums
-	?enumeration:Enumeration,
-	// fields
-	?className:String,
-	?name:String,
-	?value:String,
-	// constructor
-	?classId:String,
-	// functions
-	?func:Func,
-	// assets
-	?path:String,
-	?data:String
-}
-
 
 class Parser {
 

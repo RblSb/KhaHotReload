@@ -1,5 +1,6 @@
-package hotml;
+package hotml.client;
 
+#if kha
 import kha.Assets;
 import haxe.io.Path;
 import haxe.crypto.Base64;
@@ -41,3 +42,4 @@ class Kha {
 	}
 
 }
+#end
