@@ -13,9 +13,9 @@ project.targetOptions.html5.disableContextMenu = true;
 
 if (process.argv.includes("--watch")) {
 	let libPath = project.addLibrary('hotml');
-	if (!libPath) libPath = path.resolve('./Libraries/hotml');
 	project.addDefine('js_classic');
 	const path = require('path');
+	if (!libPath) libPath = path.resolve('./Libraries/hotml');
 	const Server = require(`${libPath}/bin/server.js`).hotml.server.Main;
 	const server = new Server(`${path.resolve('.')}/build/${platform}`, 'kha.js');
 	callbacks.postHaxeRecompilation = () => {

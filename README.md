@@ -20,10 +20,10 @@ node Kha/make html5 --watch
 ```js
 if (process.argv.includes("--watch")) { // run only in watch mode
 	let libPath = project.addLibrary('hotml'); // client code for code-patching
-	if (!libPath) libPath = path.resolve('./Libraries/hotml');
 	project.addDefine('js_classic'); // to support constructors patching, optional
 	// start websocket server that will send type diffs to client
 	const path = require('path');
+	if (!libPath) libPath = path.resolve('./Libraries/hotml');
 	const Server = require(path.resolve('./server/bin/server.js')).Main;
 	// path to target build folder and main js file.
 	const server = new Server(`${path.resolve('.')}/build/${platform}`, 'kha.js');
