@@ -118,8 +118,11 @@ class Client {
 
 		// making instance of class to get all field values in constructor
 		// and set it to prototype for previous runtime objects
-		final instance = untyped __js__("new window[{0}];", classId);
-		copyObjectFields(instance, untyped window[classId].prototype);
+		try {
+			// try-catch in case if constructor has args field access
+			final instance = untyped __js__("new window[{0}];", classId);
+			copyObjectFields(instance, untyped window[classId].prototype);
+		} catch (ex:Any) {}
 	}
 
 	function copyObjectFields(from:{}, to:{}):Void {
