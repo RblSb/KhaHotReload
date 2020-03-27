@@ -6,7 +6,7 @@
     {
       "label": "Build Electron-watch",
       "type": "shell",
-      "command": "node ${config:kha.khaPath}/make debug-html5 --watch",
+      "command": "node ${command:kha.findKha}/make debug-html5 --watch",
       "isBackground": true,
       "problemMatcher": {
         "pattern": [
