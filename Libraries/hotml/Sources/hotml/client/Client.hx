@@ -136,8 +136,14 @@ class Client {
 	}
 
 	function setFunction(className:String, func:Func):Void {
-		if (func.isStatic) untyped $hxClasses[className][func.name] = makeFunc(func);
-		else untyped $hxClasses[className].prototype[func.name] = makeFunc(func);
+		#if js_classic
+		// abstracts are not in hxClasses anymore, check window for them
+		final ctx = untyped ($hxClasses[className] == null ? window : $hxClasses);
+		#else
+		final ctx = untyped $hxClasses;
+		#end
+		if (func.isStatic) untyped ctx[className][func.name] = makeFunc(func);
+		else untyped ctx[className].prototype[func.name] = makeFunc(func);
 	}
 
 	function setStaticVar(className:String, name:String, value:String):Void {

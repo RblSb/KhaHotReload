@@ -24,19 +24,19 @@ class Main {
 		function exit() {
 			process.exit();
 		}
-		process.on('exit', exit);
-		process.on('SIGINT', exit); // ctrl+c
-		// process.on('uncaughtException', (log) -> {
+		process.on("exit", exit);
+		process.on("SIGINT", exit); // ctrl+c
+		// process.on("uncaughtException", (log) -> {
 		// 	trace(log);
 		// });
-		// process.on('unhandledRejection', (reason, promise) -> {
-		// 	trace('Unhandled Rejection at:', reason);
+		// process.on("unhandledRejection", (reason, promise) -> {
+		// 	trace("Unhandled Rejection at:", reason);
 		// });
-		wss.on('connection', onConnect);
+		wss.on("connection", onConnect);
 	}
 
 	function onConnect(ws:WebSocket) {
-		trace('Client connected');
+		trace("Client connected");
 		clients.push(ws);
 
 		var reply = {
@@ -47,13 +47,9 @@ class Main {
 		};
 		ws.send(Json.stringify(reply), null);
 
-		ws.on('message', function(data) {
-			// message(ws, data);
-		});
-		ws.on('close', function(err) {
-			trace('Client disconnected');
+		ws.on("close", function(err) {
+			trace("Client disconnected");
 			clients.remove(ws);
-			// removeClient(ws);
 		});
 	}
 
@@ -84,7 +80,7 @@ class Main {
 	public function reloadAsset(path:String):Void {
 		final bytes = File.getBytes('$buildDir/$path');
 		final data = Base64.encode(bytes);
-		broadcast([{type:"reloadAsset", path: path, data: data}]);
+		broadcast([{type: "reloadAsset", path: path, data: data}]);
 	}
 
 }

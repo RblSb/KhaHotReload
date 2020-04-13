@@ -137,16 +137,18 @@ class Parser {
 			mode = ParseMethods;
 			return;
 		}
-		if (jsType == Es5 && matchObj.match(line)) {
-			final name = matchObj.matched(1);
-			setObj(name);
-			return;
-		}
 		if (jsType == Classic && matchClassicObj.match(line)) {
 			final name = matchClassicObj.matched(1);
 			final nameId = matchClassicObj.matched(2);
 			setObj(name);
 			setNameId(name, nameId);
+			return;
+		}
+		// if jsType == Es5 or for Haxe 4.1 abstracts
+		if (matchObj.match(line)) {
+			final name = matchObj.matched(1);
+			setObj(name);
+			setNameId(name, name);
 			return;
 		}
 		if (matchClassNameId.match(line)) {
@@ -162,6 +164,10 @@ class Parser {
 			if (field == "__name__") return;
 			if (value.startsWith("function")) {
 				throw "TODO one-line function";
+			}
+			if (classes[className] == null) {
+				traceSkip('Skip $className.$field = ${minString(value)}');
+				return;
 			}
 			traceType('$className.$field = ${minString(value)}');
 			classes[className].staticVars[field] = value;

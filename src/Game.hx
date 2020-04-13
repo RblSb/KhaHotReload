@@ -12,6 +12,13 @@ enum TestEnum {
 	Bar(num:Int);
 }
 
+abstract Ab(Int) {
+	public function new(x:Int) {
+		this = x;
+		// this = 5;
+	}
+}
+
 class Game extends Screen {
 
 	final imgLink = Assets.images.img;
@@ -51,6 +58,7 @@ class Game extends Screen {
 			rects.resize(0);
 			rects2.resize(0);
 			trace(blobLink.bytes);
+			trace(new Ab(4));
 			return;
 		}
 		switch (Std.random(2)) {
