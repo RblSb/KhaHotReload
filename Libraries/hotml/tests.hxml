@@ -1,7 +1,9 @@
 -lib hxnodejs
 -lib hxnodejs-ws
+-lib utest
 -cp Sources
-hotml.server.Main
+-cp test
+--main Main
 -D analyzer-optimize
 --dce full
---js bin/server.js
+--js bin/test.js

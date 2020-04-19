@@ -4,6 +4,7 @@ import hotml.Types.Enumeration;
 import hotml.Types.Func;
 import hotml.Types.Klass;
 import hotml.Types.Patch;
+import hotml.Types.BodySection;
 using StringTools;
 
 enum abstract JsType(Int) {
@@ -106,14 +107,14 @@ class Parser {
 		}
 		if (jsType == Es5 && matchConstructor.match(line)) {
 			final name = matchConstructor.matched(1);
-			final args = matchConstructor.matched(2).split(",");
+			final args = parseArgs(matchConstructor.matched(2));
 			setConstructor(name, args);
 			return;
 		}
 		if (jsType == Classic && matchClassicConstructor.match(line)) {
 			final name = matchClassicConstructor.matched(1);
 			final nameId = matchClassicConstructor.matched(2);
-			final args = matchClassicConstructor.matched(3).split(",");
+			final args = parseArgs(matchClassicConstructor.matched(3));
 			setConstructor(name, args);
 			setNameId(name, nameId);
 			return;
@@ -165,33 +166,27 @@ class Parser {
 			if (value.startsWith("function")) {
 				throw "TODO one-line function";
 			}
-			if (classes[className] == null) {
-				traceSkip('Skip $className.$field = ${minString(value)}');
-				return;
-			}
-			traceType('$className.$field = ${minString(value)}');
-			classes[className].staticVars[field] = value;
+			setStaticVar(className, field, value);
 			return;
 		}
 		if (matchStaticArr.match(line)) {
 			final className = matchStaticArr.matched(1);
 			final field = matchStaticArr.matched(2);
-			final value = readFunctionBody("}(this));");
-			traceType('$className.$field = $value');
-			classes[className].staticVars[field] = value;
+			final value = readFunctionBody(field);
+			setStaticVar(className, field, value);
 			return;
 		}
 		if (matchStaticFunc.match(line)) {
 			final className = matchStaticFunc.matched(1);
 			final name = matchStaticFunc.matched(2);
-			final args = matchStaticFunc.matched(3);
-			final body = readFunctionBody();
+			final args = parseArgs(matchStaticFunc.matched(3));
+			final body = readFunctionBody(name);
 			if (className == "window") return;
-			traceType('$className.$name($args) {${body.split("\n").length}}');
+			traceType('$className.$name($args) {${countLines(body)}}');
 			traceBody(body);
 			classes[className].methods[name] = {
 				name: name,
-				args: args.split(","),
+				args: args,
 				body: body,
 				isStatic: true
 			};
@@ -200,24 +195,25 @@ class Parser {
 		if (matchEnum.match(line)) {
 			final name = matchEnum.matched(1);
 			final nameId = matchEnum.matched(2);
-			final body = readFunctionBody();
+			final body = readFunctionBody(name);
 			enums[name] = {name: name, nameId: nameId, body: body};
 			return;
 		}
 	}
 
 	function setConstructor(name:String, args:Array<String>):Void {
+		final fieldName = "new";
 		final constructor:Func = {
-			name: "new",
+			name: fieldName,
 			args: args,
-			body: readFunctionBody()
+			body: readFunctionBody(fieldName)
 		};
 		final klass:Klass = {
 			name: name,
-			methods: ["new" => constructor],
+			methods: [fieldName => constructor],
 			staticVars: []
 		};
-		traceType('$name($args).new {${constructor.body.split("\n").length}}');
+		traceType('$name($args).new {${countLines(constructor.body)}}');
 		traceBody(constructor.body);
 		classes[name] = klass;
 		currentClass = klass;
@@ -241,34 +237,83 @@ class Parser {
 		classes[name].nameId = nameId;
 	}
 
-	function readFunctionBody(lastLine = "};"):String {
+	function setStaticVar(className:String, field:String, value:String):Void {
+		if (classes[className] == null) {
+			traceSkip('Skip $className.$field = ${minString(value)}');
+			return;
+		}
+		traceType('$className.$field = ${minString(value)}');
+		classes[className].staticVars[field] = value;
+	}
+
+	function readFunctionBody(fieldName:String):String {
 		final body = new StringBuf();
-		var isOpened = false;
+		var section:BodySection = Code;
 		var level = 0;
 		while (num < lines.length) {
 			final line = lines[num];
 			var lineStart = 0;
 			var lineEnd = line.length;
-			for (i in 0...line.length) {
+			var i = 0;
+			while (i < line.length) {
 				final code = line.fastCodeAt(i);
-				if (code == "{".code) {
-					if (level == 0) {
-						lineStart = i + 1;
-						isOpened = true;
-					}
-					level++;
+				switch (section) {
+					case Code:
+						switch (code) {
+							case "{".code:
+								// start body text from first bracket
+								if (level == 0) lineStart = i + 1;
+								level++;
+
+							case "}".code:
+								level--;
+								if (level == 0) {
+									lineEnd = i;
+									break;
+								} else if (level < 0) {
+									throw 'Field "$fieldName" closed before been opened';
+								}
+
+							case "/".code:
+								final next = line.fastCodeAt(i + 1);
+								if (next == "/".code) section = SingleComment;
+								else if (next == "*".code) section = MultiComment;
+								if (section != Code) i++;
+
+							case "'".code:
+								section = SingleQuotes;
+							case '"'.code:
+								section = DoubleQuotes;
+							case "`".code:
+								section = Backticks;
+						}
+					case SingleComment:
+						if (i == line.length - 1) section = Code;
+					case MultiComment:
+						if (code == "*".code) {
+							final next = line.fastCodeAt(i + 1);
+							if (next == "/".code) {
+								section = Code;
+								i++;
+							}
+						}
+					case SingleQuotes:
+						if (code == "\\".code) i++;
+						else if (code == "'".code) section = Code;
+					case DoubleQuotes:
+						if (code == "\\".code) i++;
+						else if (code == '"'.code) section = Code;
+					case Backticks:
+						if (code == "\\".code) i++;
+						else if (code == "`".code) section = Code;
 				}
-				else if (code == "}".code) {
-					level--;
-					if (isOpened && level == 0) {
-						lineEnd = i - 1;
-						break;
-					}
-				}
+				i++;
 			}
-			if (body.length > 0 && lineStart == 0 && lineEnd == line.length) body.add("\n");
+
+			// add line break if body already has lines and this is not latest line
+			if (body.length > 0 && lineEnd == line.length) body.add("\n");
 			body.add(line.substring(lineStart, lineEnd));
-			if (isOpened && level == 0) break;
+			if (level == 0 && section == Code) break;
 			num++;
 		}
 		return body.toString();
@@ -277,13 +322,13 @@ class Parser {
 	function parseMethods(line:String):Void {
 		if (matchFunc.match(line)) {
 			final name = matchFunc.matched(1);
-			final args = matchFunc.matched(2);
-			final body = readFunctionBody("	}");
-			traceType('function $name($args) {${body.split("\n").length}}');
+			final args = parseArgs(matchFunc.matched(2));
+			final body = readFunctionBody(name);
+			traceType('function $name($args) {${countLines(body)}}');
 			traceBody(body);
 			currentClass.methods[name] = {
 				name: name,
-				args: args.split(","),
+				args: args,
 				body: body
 			};
 			return;
@@ -292,6 +337,11 @@ class Parser {
 			traceType('} (${currentClass.name})');
 			mode = ParseRegular;
 		}
+	}
+
+	function parseArgs(args:String):Array<String> {
+		if (args == "") return [];
+		return args.split(",");
 	}
 
 	public function makeDiffTo(file:Parser):Array<Patch> {
@@ -364,10 +414,22 @@ class Parser {
 		return result;
 	}
 
-	function minString(s:String):String {
+	@:pure function minString(s:String):String {
 		if (s == null) return "null";
 		if (s.length < 23) return s;
 		return s.substr(0, 10) + "..." + s.substr(s.length - 10, 10);
+	}
+
+	#if js
+	final matchLines = new js.lib.RegExp("\n", "g"); // ~/\n/g;
+	#end
+
+	@:pure function countLines(s:String):Int {
+		#if js
+		return untyped (s.match(matchLines) || "").length + 1;
+		#else
+		return s.split("\n").length;
+		#end
 	}
 
 }

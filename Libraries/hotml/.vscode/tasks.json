@@ -2,11 +2,6 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"type": "haxe",
-			"args": "active configuration",
-			"group": "build"
-		},
-		{
 			"type": "hxml",
 			"file": "build.hxml",
 			"problemMatcher": [
@@ -18,6 +13,23 @@
 			"group": {
 				"kind": "build",
 				"isDefault": true
+			},
+			"presentation": {
+				"clear": true
+			}
+		},
+		{
+			"label": "Test",
+			"type": "hxml",
+			"file": "tests.hxml",
+			"problemMatcher": [
+				"$haxe-absolute",
+				"$haxe",
+				"$haxe-error",
+				"$haxe-trace"
+			],
+			"presentation": {
+				"clear": true
 			}
 		}
 	]

@@ -1,0 +1,14 @@
+{
+	"configurations": [
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Node: build and run",
+			"program": "${workspaceFolder}/bin/test.js",
+
+			"args": ["--verbose"],
+			"sourceMaps": true,
+			"preLaunchTask": "Test"
+		}
+	]
+}

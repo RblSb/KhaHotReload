@@ -355,6 +355,7 @@ hotml_server_Main.prototype = {
 	}
 };
 var hotml_server_Parser = function(file) {
+	this.matchLines = new RegExp("\n","g");
 	this.jsTypeDetected = false;
 	this.jsType = 0;
 	this.num = 0;
@@ -416,13 +417,13 @@ hotml_server_Parser.prototype = {
 			return;
 		}
 		if(this.jsType == 1 && this.matchConstructor.match(line)) {
-			this.setConstructor(this.matchConstructor.matched(1),this.matchConstructor.matched(2).split(","));
+			this.setConstructor(this.matchConstructor.matched(1),this.parseArgs(this.matchConstructor.matched(2)));
 			return;
 		}
 		if(this.jsType == 0 && this.matchClassicConstructor.match(line)) {
 			var name = this.matchClassicConstructor.matched(1);
 			var nameId = this.matchClassicConstructor.matched(2);
-			this.setConstructor(name,this.matchClassicConstructor.matched(3).split(","));
+			this.setConstructor(name,this.parseArgs(this.matchClassicConstructor.matched(3)));
 			this.setNameId(name,nameId);
 			return;
 		}
@@ -431,7 +432,7 @@ hotml_server_Parser.prototype = {
 			var _this = this.classes;
 			if((__map_reserved[parent] != null ? _this.getReserved(parent) : _this.h[parent]) == null) {
 				if(hotml_server_Parser.logSkips) {
-					console.log("Sources/hotml/server/Parser.hx:93:","Skip " + this.currentClass.name + " parent " + parent);
+					console.log("Sources/hotml/server/Parser.hx:94:","Skip " + this.currentClass.name + " parent " + parent);
 				}
 				return;
 			}
@@ -445,7 +446,7 @@ hotml_server_Parser.prototype = {
 		}
 		if(StringTools.endsWith(line,".prototype = {") || line.indexOf(".prototype = $extend(") != -1) {
 			if(hotml_server_Parser.logTypes) {
-				console.log("Sources/hotml/server/Parser.hx:85:","" + this.currentClass.name + " {");
+				console.log("Sources/hotml/server/Parser.hx:86:","" + this.currentClass.name + " {");
 			}
 			this.mode = 1;
 			return;
@@ -478,79 +479,54 @@ hotml_server_Parser.prototype = {
 			if(StringTools.startsWith(value,"function")) {
 				throw new js__$Boot_HaxeError("TODO one-line function");
 			}
-			var _this2 = this.classes;
-			if((__map_reserved[className] != null ? _this2.getReserved(className) : _this2.h[className]) == null) {
-				if(hotml_server_Parser.logSkips) {
-					console.log("Sources/hotml/server/Parser.hx:93:","Skip " + className + "." + field + " = " + this.minString(value));
-				}
-				return;
-			}
-			if(hotml_server_Parser.logTypes) {
-				console.log("Sources/hotml/server/Parser.hx:85:","" + className + "." + field + " = " + this.minString(value));
-			}
-			var _this3 = this.classes;
-			var _this4 = (__map_reserved[className] != null ? _this3.getReserved(className) : _this3.h[className]).staticVars;
-			if(__map_reserved[field] != null) {
-				_this4.setReserved(field,value);
-			} else {
-				_this4.h[field] = value;
-			}
+			this.setStaticVar(className,field,value);
 			return;
 		}
 		if(this.matchStaticArr.match(line)) {
 			var className1 = this.matchStaticArr.matched(1);
 			var field1 = this.matchStaticArr.matched(2);
-			var value1 = this.readFunctionBody("}(this));");
-			if(hotml_server_Parser.logTypes) {
-				console.log("Sources/hotml/server/Parser.hx:85:","" + className1 + "." + field1 + " = " + value1);
-			}
-			var _this5 = this.classes;
-			var _this6 = (__map_reserved[className1] != null ? _this5.getReserved(className1) : _this5.h[className1]).staticVars;
-			if(__map_reserved[field1] != null) {
-				_this6.setReserved(field1,value1);
-			} else {
-				_this6.h[field1] = value1;
-			}
+			this.setStaticVar(className1,field1,this.readFunctionBody(field1));
 			return;
 		}
 		if(this.matchStaticFunc.match(line)) {
 			var className2 = this.matchStaticFunc.matched(1);
 			var name3 = this.matchStaticFunc.matched(2);
-			var args = this.matchStaticFunc.matched(3);
-			var body = this.readFunctionBody();
+			var args = this.parseArgs(this.matchStaticFunc.matched(3));
+			var body = this.readFunctionBody(name3);
 			if(className2 == "window") {
 				return;
 			}
+			var s = "" + className2 + "." + name3 + "(" + Std.string(args) + ") {";
 			if(hotml_server_Parser.logTypes) {
-				console.log("Sources/hotml/server/Parser.hx:85:","" + className2 + "." + name3 + "(" + args + ") {" + body.split("\n").length + "}");
+				console.log("Sources/hotml/server/Parser.hx:86:",s + this.countLines(body) + "}");
 			}
 			if(hotml_server_Parser.logBodies) {
-				console.log("Sources/hotml/server/Parser.hx:89:",body);
+				console.log("Sources/hotml/server/Parser.hx:90:",body);
 			}
-			var _this7 = this.classes;
-			var v = { name : name3, args : args.split(","), body : body, isStatic : true};
-			var _this8 = (__map_reserved[className2] != null ? _this7.getReserved(className2) : _this7.h[className2]).methods;
+			var _this2 = this.classes;
+			var v = { name : name3, args : args, body : body, isStatic : true};
+			var _this3 = (__map_reserved[className2] != null ? _this2.getReserved(className2) : _this2.h[className2]).methods;
 			if(__map_reserved[name3] != null) {
-				_this8.setReserved(name3,v);
+				_this3.setReserved(name3,v);
 			} else {
-				_this8.h[name3] = v;
+				_this3.h[name3] = v;
 			}
 			return;
 		}
 		if(this.matchEnum.match(line)) {
 			var name4 = this.matchEnum.matched(1);
-			var v1 = { name : name4, nameId : this.matchEnum.matched(2), body : this.readFunctionBody()};
-			var _this9 = this.enums;
+			var v1 = { name : name4, nameId : this.matchEnum.matched(2), body : this.readFunctionBody(name4)};
+			var _this4 = this.enums;
 			if(__map_reserved[name4] != null) {
-				_this9.setReserved(name4,v1);
+				_this4.setReserved(name4,v1);
 			} else {
-				_this9.h[name4] = v1;
+				_this4.h[name4] = v1;
 			}
 			return;
 		}
 	}
 	,setConstructor: function(name,args) {
-		var constructor = { name : "new", args : args, body : this.readFunctionBody()};
+		var constructor = { name : "new", args : args, body : this.readFunctionBody("new")};
 		var _g = new haxe_ds_StringMap();
 		if(__map_reserved["new"] != null) {
 			_g.setReserved("new",constructor);
@@ -558,11 +534,12 @@ hotml_server_Parser.prototype = {
 			_g.h["new"] = constructor;
 		}
 		var klass = { name : name, methods : _g, staticVars : new haxe_ds_StringMap()};
+		var s = "" + name + "(" + Std.string(args) + ").new {";
 		if(hotml_server_Parser.logTypes) {
-			console.log("Sources/hotml/server/Parser.hx:85:","" + name + "(" + Std.string(args) + ").new {" + constructor.body.split("\n").length + "}");
+			console.log("Sources/hotml/server/Parser.hx:86:",s + this.countLines(constructor.body) + "}");
 		}
 		if(hotml_server_Parser.logBodies) {
-			console.log("Sources/hotml/server/Parser.hx:89:",constructor.body);
+			console.log("Sources/hotml/server/Parser.hx:90:",constructor.body);
 		}
 		var _this = this.classes;
 		if(__map_reserved[name] != null) {
@@ -575,7 +552,7 @@ hotml_server_Parser.prototype = {
 	,setObj: function(name) {
 		var klass = { name : name, methods : new haxe_ds_StringMap(), staticVars : new haxe_ds_StringMap()};
 		if(hotml_server_Parser.logTypes) {
-			console.log("Sources/hotml/server/Parser.hx:85:","Class " + name + " {}");
+			console.log("Sources/hotml/server/Parser.hx:86:","Class " + name + " {}");
 		}
 		var _this = this.classes;
 		if(__map_reserved[name] != null) {
@@ -588,48 +565,125 @@ hotml_server_Parser.prototype = {
 		var _this = this.classes;
 		if((__map_reserved[name] != null ? _this.getReserved(name) : _this.h[name]) == null) {
 			if(hotml_server_Parser.logSkips) {
-				console.log("Sources/hotml/server/Parser.hx:93:","Skip " + name + " id " + nameId);
+				console.log("Sources/hotml/server/Parser.hx:94:","Skip " + name + " id " + nameId);
 			}
 			return;
 		}
 		var _this1 = this.classes;
 		(__map_reserved[name] != null ? _this1.getReserved(name) : _this1.h[name]).nameId = nameId;
 	}
-	,readFunctionBody: function(lastLine) {
-		if(lastLine == null) {
-			lastLine = "};";
+	,setStaticVar: function(className,field,value) {
+		var _this = this.classes;
+		if((__map_reserved[className] != null ? _this.getReserved(className) : _this.h[className]) == null) {
+			if(hotml_server_Parser.logSkips) {
+				console.log("Sources/hotml/server/Parser.hx:94:","Skip " + className + "." + field + " = " + this.minString(value));
+			}
+			return;
 		}
+		if(hotml_server_Parser.logTypes) {
+			console.log("Sources/hotml/server/Parser.hx:86:","" + className + "." + field + " = " + this.minString(value));
+		}
+		var _this1 = this.classes;
+		var _this2 = (__map_reserved[className] != null ? _this1.getReserved(className) : _this1.h[className]).staticVars;
+		if(__map_reserved[field] != null) {
+			_this2.setReserved(field,value);
+		} else {
+			_this2.h[field] = value;
+		}
+	}
+	,readFunctionBody: function(fieldName) {
 		var body_b = "";
-		var isOpened = false;
+		var section = 0;
 		var level = 0;
 		while(this.num < this.lines.length) {
 			var line = this.lines[this.num];
 			var lineStart = 0;
 			var lineEnd = line.length;
-			var _g = 0;
-			var _g1 = line.length;
-			while(_g < _g1) {
-				var i = _g++;
+			var i = 0;
+			_hx_loop2: while(i < line.length) {
 				var code = line.charCodeAt(i);
-				if(code == 123) {
-					if(level == 0) {
-						lineStart = i + 1;
-						isOpened = true;
-					}
-					++level;
-				} else if(code == 125) {
-					--level;
-					if(isOpened && level == 0) {
-						lineEnd = i - 1;
+				switch(section) {
+				case 0:
+					switch(code) {
+					case 34:
+						section = 4;
+						break;
+					case 39:
+						section = 3;
+						break;
+					case 47:
+						var next = line.charCodeAt(i + 1);
+						if(next == 47) {
+							section = 1;
+						} else if(next == 42) {
+							section = 2;
+						}
+						if(section != 0) {
+							++i;
+						}
+						break;
+					case 96:
+						section = 5;
+						break;
+					case 123:
+						if(level == 0) {
+							lineStart = i + 1;
+						}
+						++level;
+						break;
+					case 125:
+						--level;
+						if(level == 0) {
+							lineEnd = i;
+							break _hx_loop2;
+						} else if(level < 0) {
+							throw new js__$Boot_HaxeError("Field \"" + fieldName + "\" closed before been opened");
+						}
 						break;
 					}
+					break;
+				case 1:
+					if(i == line.length - 1) {
+						section = 0;
+					}
+					break;
+				case 2:
+					if(code == 42) {
+						if(line.charCodeAt(i + 1) == 47) {
+							section = 0;
+							++i;
+						}
+					}
+					break;
+				case 3:
+					if(code == 92) {
+						++i;
+					} else if(code == 39) {
+						section = 0;
+					}
+					break;
+				case 4:
+					if(code == 92) {
+						++i;
+					} else if(code == 34) {
+						section = 0;
+					}
+					break;
+				case 5:
+					if(code == 92) {
+						++i;
+					} else if(code == 96) {
+						section = 0;
+					}
+					break;
 				}
+				++i;
 			}
-			if(body_b.length > 0 && lineStart == 0 && lineEnd == line.length) {
+			if(body_b.length > 0 && lineEnd == line.length) {
 				body_b += "\n";
 			}
 			body_b += Std.string(line.substring(lineStart,lineEnd));
-			if(isOpened && level == 0) {
+			if(level == 0 && section == 0) {
 				break;
 			}
 			this.num++;
@@ -639,15 +693,16 @@ hotml_server_Parser.prototype = {
 	,parseMethods: function(line) {
 		if(this.matchFunc.match(line)) {
 			var name = this.matchFunc.matched(1);
-			var args = this.matchFunc.matched(2);
-			var body = this.readFunctionBody("\t}");
+			var args = this.parseArgs(this.matchFunc.matched(2));
+			var body = this.readFunctionBody(name);
+			var s = "function " + name + "(" + Std.string(args) + ") {";
 			if(hotml_server_Parser.logTypes) {
-				console.log("Sources/hotml/server/Parser.hx:85:","function " + name + "(" + args + ") {" + body.split("\n").length + "}");
+				console.log("Sources/hotml/server/Parser.hx:86:",s + this.countLines(body) + "}");
 			}
 			if(hotml_server_Parser.logBodies) {
-				console.log("Sources/hotml/server/Parser.hx:89:",body);
+				console.log("Sources/hotml/server/Parser.hx:90:",body);
 			}
-			var v = { name : name, args : args.split(","), body : body};
+			var v = { name : name, args : args, body : body};
 			var _this = this.currentClass.methods;
 			if(__map_reserved[name] != null) {
 				_this.setReserved(name,v);
@@ -658,10 +713,16 @@ hotml_server_Parser.prototype = {
 		}
 		if(line == "};" || line == "});") {
 			if(hotml_server_Parser.logTypes) {
-				console.log("Sources/hotml/server/Parser.hx:85:","} (" + this.currentClass.name + ")");
+				console.log("Sources/hotml/server/Parser.hx:86:","} (" + this.currentClass.name + ")");
 			}
 			this.mode = 0;
 		}
+	}
+	,parseArgs: function(args) {
+		if(args == "") {
+			return [];
+		}
+		return args.split(",");
 	}
 	,makeDiffTo: function(file) {
 		var result = [];
@@ -679,12 +740,12 @@ hotml_server_Parser.prototype = {
 		var _this = this.classes;
 		var old = __map_reserved[key] != null ? _this.getReserved(key) : _this.h[key];
 		if(old == null) {
-			console.log("Sources/hotml/server/Parser.hx:308:","New class: " + className);
+			console.log("Sources/hotml/server/Parser.hx:358:","New class: " + className);
 			result.push({ type : "addClass", klass : klass});
 			return;
 		}
 		if(old.parent != klass.parent) {
-			console.log("Sources/hotml/server/Parser.hx:313:","" + className + ": new parent: " + klass.parent);
+			console.log("Sources/hotml/server/Parser.hx:363:","" + className + ": new parent: " + klass.parent);
 			result.push({ type : "addClass", klass : klass});
 			return;
 		}
@@ -697,7 +758,7 @@ hotml_server_Parser.prototype = {
 			var _this2 = klass.staticVars;
 			var newValue = __map_reserved[key1] != null ? _this2.getReserved(key1) : _this2.h[key1];
 			if((__map_reserved[key1] != null ? _this1.getReserved(key1) : _this1.h[key1]) != newValue) {
-				console.log("Sources/hotml/server/Parser.hx:322:","" + className + ": static var " + key1 + " value: " + this.minString(newValue));
+				console.log("Sources/hotml/server/Parser.hx:372:","" + className + ": static var " + key1 + " value: " + this.minString(newValue));
 				result.push({ type : "staticVar", className : className, name : key1, value : newValue});
 			}
 		}
@@ -711,7 +772,7 @@ hotml_server_Parser.prototype = {
 			var _this4 = klass.methods;
 			var newValue1 = __map_reserved[key2] != null ? _this4.getReserved(key2) : _this4.h[key2];
 			if("" + Std.string(value) != "" + Std.string(newValue1)) {
-				console.log("Sources/hotml/server/Parser.hx:331:","" + className + ": func " + key2 + "() value: " + this.minString("" + Std.string(newValue1)));
+				console.log("Sources/hotml/server/Parser.hx:381:","" + className + ": func " + key2 + "() value: " + this.minString("" + Std.string(newValue1)));
 				if(newValue1 == null) {
 					newValue1 = { name : value.name, args : [], body : "", isStatic : value.isStatic};
 				}
@@ -728,12 +789,12 @@ hotml_server_Parser.prototype = {
 		var _this = this.enums;
 		var old = __map_reserved[key] != null ? _this.getReserved(key) : _this.h[key];
 		if(old == null) {
-			console.log("Sources/hotml/server/Parser.hx:348:","New enum: " + en.nameId);
+			console.log("Sources/hotml/server/Parser.hx:398:","New enum: " + en.nameId);
 			result.push({ type : "addEnum", enumeration : en});
 			return;
 		}
 		if(old.body != en.body) {
-			console.log("Sources/hotml/server/Parser.hx:353:","New enum body: " + this.minString(en.body));
+			console.log("Sources/hotml/server/Parser.hx:403:","New enum body: " + this.minString(en.body));
 			result.push({ type : "addEnum", enumeration : en});
 			return;
 		}
@@ -759,6 +820,9 @@ hotml_server_Parser.prototype = {
 			return s;
 		}
 		return HxOverrides.substr(s,0,10) + "..." + HxOverrides.substr(s,s.length - 10,10);
+	}
+	,countLines: function(s) {
+		return (s.match(this.matchLines) || "").length + 1;
 	}
 };
 var js__$Boot_HaxeError = function(val) {

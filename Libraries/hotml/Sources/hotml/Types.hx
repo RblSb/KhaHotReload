@@ -1,5 +1,14 @@
 package hotml;
 
+enum abstract BodySection(Int) {
+	var Code;
+	var SingleComment;
+	var MultiComment;
+	var SingleQuotes;
+	var DoubleQuotes;
+	var Backticks;
+}
+
 typedef Enumeration = {
 	name:String,
 	nameId:String,
