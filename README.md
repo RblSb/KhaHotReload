@@ -24,7 +24,7 @@ if (process.argv.includes("--watch")) { // run only in watch mode
 	// start websocket server that will send type diffs to client
 	const path = require('path');
 	if (!libPath) libPath = path.resolve('./Libraries/hotml');
-	const Server = require(path.resolve('./server/bin/server.js')).Main;
+	const Server = require(`${libPath}/bin/server.js`).hotml.server.Main;
 	// path to target build folder and main js file.
 	const server = new Server(`${path.resolve('.')}/build/${platform}`, 'kha.js');
 	callbacks.postHaxeRecompilation = () => {
