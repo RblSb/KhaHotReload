@@ -12,6 +12,7 @@ project.addParameter('-dce full');
 project.targetOptions.html5.disableContextMenu = true;
 
 if (process.argv.includes("--watch")) {
+	project.targetOptions.html5.unsafeEval = true;
 	let libPath = project.addLibrary('hotml');
 	project.addDefine('js_classic');
 	const path = require('path');

@@ -27,9 +27,9 @@ class Game extends Screen {
 	final rects2:Array<Rect2> = [];
 
 	public function init() {
-		// Assets.loadBlob("blob_txt", (blob) -> {
-		// 	trace(blob);
-		// });
+		Assets.loadBlob("blob_txt", (blob) -> {
+			trace(blob);
+		});
 	}
 
 	override function onUpdate():Void {

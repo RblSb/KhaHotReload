@@ -1,27 +1,28 @@
 {
   "configurations": [
     {
-      "type": "electron",
-      "request": "launch",
       "name": "HTML5-watch",
-      "appDir": "${workspaceFolder}/build/debug-html5",
-      "sourceMaps": true,
-      "preLaunchTask": "Build Electron-watch",
-      "postDebugTask": "postDebugKill"
-    },
-    {
-      "type": "electron",
       "request": "launch",
-      "name": "Kha: HTML5",
-      "appDir": "${workspaceFolder}/build/debug-html5",
-      "sourceMaps": true,
-      "preLaunchTask": "Kha: Build for Debug HTML5"
+      "type": "pwa-chrome",
+      "cwd": "${workspaceFolder}/build/debug-html5",
+      "runtimeExecutable": "${command:kha.findKhaElectron}",
+      "runtimeArgs": [
+        "--no-sandbox",
+        "."
+      ],
+      "outFiles": [
+        "${workspaceFolder}/build/debug-html5/*.js"
+      ],
+      "preLaunchTask": "Build Electron-watch",
+      "postDebugTask": "postDebugKill",
+      "internalConsoleOptions": "openOnSessionStart"
     },
     {
       "type": "krom",
       "request": "launch",
       "name": "Kha: Krom",
-      "preLaunchTask": "Kha: Build for Krom"
+      "preLaunchTask": "Kha: Build for Krom",
+      "internalConsoleOptions": "openOnSessionStart"
     }
   ],
   "compounds": []

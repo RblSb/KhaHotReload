@@ -19,6 +19,7 @@ node Kha/make html5 --watch
 - Add this block to `khafile.js` (before `resolve(project);`):
 ```js
 if (process.argv.includes("--watch")) { // run only in watch mode
+	project.targetOptions.html5.unsafeEval = true; // allow eval in electron
 	let libPath = project.addLibrary('hotml'); // client code for code-patching
 	project.addDefine('js_classic'); // to support constructors patching, optional
 	// start websocket server that will send type diffs to client
